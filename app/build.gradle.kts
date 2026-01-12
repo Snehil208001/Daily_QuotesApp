@@ -80,6 +80,11 @@ dependencies {
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.gotrue)
     implementation(libs.ktor.client.android)
+    // Supabase Storage
+    implementation("io.github.jan-tennert.supabase:storage-kt:2.0.0")
+
+    //coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
