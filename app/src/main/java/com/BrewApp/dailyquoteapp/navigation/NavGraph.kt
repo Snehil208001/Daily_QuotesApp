@@ -1,5 +1,6 @@
 package com.BrewApp.dailyquoteapp.navigation
 
+import FavouriteScreen
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -8,7 +9,14 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -20,9 +28,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.BrewApp.dailyquoteapp.mainui.FavoritesScreen
 import com.BrewApp.dailyquoteapp.mainui.HomeScreen
-import com.BrewApp.dailyquoteapp.ui.theme.*
+import com.BrewApp.dailyquoteapp.ui.theme.BorderLight
+import com.BrewApp.dailyquoteapp.ui.theme.PrimaryBlue
+import com.BrewApp.dailyquoteapp.ui.theme.SurfaceLight
+import com.BrewApp.dailyquoteapp.ui.theme.TextMuted
 
 @Composable
 fun AppNavGraph() {
@@ -43,8 +53,11 @@ fun AppNavGraph() {
 
             // Favorites
             composable(Screens.Favorites.route) {
-                FavoritesScreen(
-                    onNavigateBack = { navController.popBackStack() }
+                FavouriteScreen( // <--- CHANGED: Correct function name
+                    onBackClick = { navController.popBackStack() }, // <--- CHANGED: Correct parameter name
+                    onItemClick = { item ->
+                        // TODO: Handle item click (e.g., navigate to details)
+                    }
                 )
             }
 
