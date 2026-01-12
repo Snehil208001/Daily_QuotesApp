@@ -17,19 +17,19 @@ private val DarkColorScheme = darkColorScheme(
     secondary = PrimaryBlue,
     tertiary = TextMuted,
     background = BackgroundDark,
-    surface = CardDark,
-    onPrimary = CardLight,
-    onSurface = TextPrimaryLight
+    surface = SurfaceDark,         // Fixed: mapped to SurfaceDark
+    onPrimary = SurfaceLight,      // Fixed: mapped to SurfaceLight (White text on Blue)
+    onSurface = SurfaceLight       // Fixed: mapped to SurfaceLight (White text on Dark bg)
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryBlue,
     secondary = PrimaryBlue,
     tertiary = TextMuted,
-    background = BackgroundLight,
-    surface = CardLight,
-    onPrimary = CardLight,
-    onSurface = TextPrimaryLight
+    background = BackgroundCream,  // Fixed: mapped to BackgroundCream
+    surface = SurfaceLight,        // Fixed: mapped to SurfaceLight
+    onPrimary = SurfaceLight,      // Fixed: mapped to SurfaceLight (White text on Blue)
+    onSurface = TextPrimary        // Fixed: mapped to TextPrimary (Dark text on Light bg)
 )
 
 @Composable

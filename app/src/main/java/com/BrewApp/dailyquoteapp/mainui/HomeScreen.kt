@@ -1,6 +1,5 @@
 package com.BrewApp.dailyquoteapp.mainui
 
-
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmarks
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder // Added this import
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.*
@@ -165,7 +165,7 @@ fun HomeScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 32.dp, start = 24.dp, end = 24.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly, // Changed to SpaceEvenly for better centering
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.Top
             ) {
                 // Refresh Action
@@ -181,6 +181,7 @@ fun HomeScreen() {
 
                 // Save/Favorite Action (Primary - Big)
                 VerticalActionButton(
+                    // Corrected Icon logic: Use Icons.Filled.Favorite (solid) vs Icons.Filled.FavoriteBorder (outline)
                     icon = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     label = if (isFavorite) "Saved" else "Save",
                     isPrimary = true,
