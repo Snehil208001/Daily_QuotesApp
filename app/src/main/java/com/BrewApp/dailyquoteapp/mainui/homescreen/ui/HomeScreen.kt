@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.BrewApp.dailyquoteapp.R
 import com.BrewApp.dailyquoteapp.mainui.homescreen.viewmodel.HomeViewModel
 import com.BrewApp.dailyquoteapp.util.QuoteStyle
 import com.BrewApp.dailyquoteapp.util.ShareUtils
@@ -151,21 +153,21 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         ) {
             VerticalActionButton(
                 icon = Icons.Outlined.Refresh,
-                label = "New Quote",
+                label = stringResource(R.string.action_new_quote),
                 isPrimary = false,
                 onClick = { viewModel.getNextQuote() }
             )
 
             VerticalActionButton(
                 icon = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                label = if (isFavorite) "Saved" else "Save",
+                label = if (isFavorite) stringResource(R.string.action_saved) else stringResource(R.string.action_save),
                 isPrimary = true,
                 onClick = { viewModel.toggleFavorite() }
             )
 
             VerticalActionButton(
                 icon = Icons.Outlined.IosShare,
-                label = "Share",
+                label = stringResource(R.string.action_share),
                 isPrimary = false,
                 onClick = { showShareDialog = true } // Open Dialog
             )
@@ -210,13 +212,18 @@ fun ShareQuoteDialog(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Share Quote", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface) // FIXED
+                Text(
+                    stringResource(R.string.dialog_share_quote_title),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                ) // FIXED
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Preview Image
                 Image(
                     bitmap = previewBitmap.asImageBitmap(),
-                    contentDescription = "Quote Card Preview",
+                    contentDescription = stringResource(R.string.cd_quote_card_preview),
                     modifier = Modifier
                         .size(250.dp)
                         .clip(RoundedCornerShape(8.dp))
@@ -226,7 +233,11 @@ fun ShareQuoteDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Style Selector
-                Text("Select Style", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)) // FIXED
+                Text(
+                    stringResource(R.string.label_select_style),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                ) // FIXED
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     QuoteStyle.values().forEach { style ->
@@ -256,13 +267,13 @@ fun ShareQuoteDialog(
                 // Action Buttons
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     Button(onClick = onShareText, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)) { // FIXED
-                        Text("Text")
+                        Text(stringResource(R.string.btn_text))
                     }
                     Button(onClick = { onSaveImage(previewBitmap) }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)) { // FIXED
-                        Text("Save")
+                        Text(stringResource(R.string.btn_save))
                     }
                     Button(onClick = { onShareImage(previewBitmap) }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)) { // FIXED
-                        Text("Share")
+                        Text(stringResource(R.string.btn_share))
                     }
                 }
             }

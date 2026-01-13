@@ -31,12 +31,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.BrewApp.dailyquoteapp.R
 import com.BrewApp.dailyquoteapp.data.model.SupabaseQuote
 import com.BrewApp.dailyquoteapp.mainui.discoveryscreen.viewmodel.DiscoveryViewModel
 import com.BrewApp.dailyquoteapp.mainui.favouritescreen.viewmodel.CollectionsViewModel
@@ -86,7 +88,7 @@ fun DiscoveryScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.cd_search),
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), // FIXED
                         modifier = Modifier.size(20.dp)
                     )
@@ -101,7 +103,11 @@ fun DiscoveryScreen(
                         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                         decorationBox = { innerTextField ->
                             if (searchQuery.isEmpty()) {
-                                Text(text = "Find inspiration...", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f), fontSize = 16.sp) // FIXED
+                                Text(
+                                    text = stringResource(R.string.hint_find_inspiration),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                    fontSize = 16.sp
+                                ) // FIXED
                             }
                             innerTextField()
                         }
@@ -117,12 +123,22 @@ fun DiscoveryScreen(
                     .clickable { /* Filter logic */ },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = Icons.Default.Tune, contentDescription = "Filter", tint = MaterialTheme.colorScheme.onSurface) // FIXED
+                Icon(
+                    imageVector = Icons.Default.Tune,
+                    contentDescription = stringResource(R.string.cd_filter),
+                    tint = MaterialTheme.colorScheme.onSurface
+                ) // FIXED
             }
         }
 
         // --- 2. Category Chips ---
-        val categories = listOf("Motivation", "Love", "Success", "Wisdom", "Humor")
+        val categories = listOf(
+            stringResource(R.string.category_motivation),
+            stringResource(R.string.category_love),
+            stringResource(R.string.category_success),
+            stringResource(R.string.category_wisdom),
+            stringResource(R.string.category_humor)
+        )
         LazyRow(
             contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -168,7 +184,7 @@ fun DiscoveryScreen(
                     ) {
                         Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), modifier = Modifier.size(64.dp)) // FIXED
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(text = "No quotes found", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)) // FIXED
+                        Text(text = stringResource(R.string.msg_no_quotes_found), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)) // FIXED
                     }
                 } else {
                     LazyColumn(
@@ -207,7 +223,7 @@ fun DiscoveryScreen(
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,  // FIXED
             title = {
                 Text(
-                    text = if (isCreating) "New Collection" else "Save to Collection",
+                    text = if (isCreating) stringResource(R.string.title_new_collection) else stringResource(R.string.title_save_to_collection),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.onSurface // FIXED
@@ -216,12 +232,12 @@ fun DiscoveryScreen(
             text = {
                 if (isCreating) {
                     Column {
-                        Text("Give your collection a name:", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) // FIXED
+                        Text(stringResource(R.string.msg_collection_name_prompt), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) // FIXED
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = newCollectionName,
                             onValueChange = { newCollectionName = it },
-                            label = { Text("Name") },
+                            label = { Text(stringResource(R.string.label_name)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -241,7 +257,7 @@ fun DiscoveryScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
                         ) {
-                            Text("No custom collections yet.", color = MaterialTheme.colorScheme.onSurfaceVariant) // FIXED
+                            Text(stringResource(R.string.msg_no_custom_collections), color = MaterialTheme.colorScheme.onSurfaceVariant) // FIXED
                         }
                     } else {
                         LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
@@ -289,13 +305,13 @@ fun DiscoveryScreen(
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary) // FIXED
-                    ) { Text("Create", color = MaterialTheme.colorScheme.onPrimary) }
+                    ) { Text(stringResource(R.string.btn_create), color = MaterialTheme.colorScheme.onPrimary) }
                 } else {
                     TextButton(onClick = { isCreating = true }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary) // FIXED
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Create New", color = MaterialTheme.colorScheme.primary) // FIXED
+                            Text(stringResource(R.string.btn_create_new), color = MaterialTheme.colorScheme.primary) // FIXED
                         }
                     }
                 }
@@ -303,7 +319,7 @@ fun DiscoveryScreen(
             dismissButton = {
                 TextButton(onClick = {
                     if (isCreating) isCreating = false else showCollectionDialog = false
-                }) { Text(if (isCreating) "Cancel" else "Close", color = MaterialTheme.colorScheme.onSurfaceVariant) } // FIXED
+                }) { Text(if (isCreating) stringResource(R.string.btn_cancel) else stringResource(R.string.btn_close), color = MaterialTheme.colorScheme.onSurfaceVariant) } // FIXED
             }
         )
     }
@@ -316,6 +332,8 @@ fun DiscoveryQuoteCard(
     onAddToCollection: () -> Unit
 ) {
     val context = LocalContext.current
+    val chooserTitle = stringResource(R.string.chooser_share_quote)
+
     Card(
         shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // FIXED
@@ -353,21 +371,21 @@ fun DiscoveryQuoteCard(
                     // 1. LIKE
                     Icon(
                         imageVector = Icons.Default.Favorite,
-                        contentDescription = "Like",
+                        contentDescription = stringResource(R.string.cd_like),
                         tint = if (quote.isLiked) Color(0xFFE25555) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), // FIXED
                         modifier = Modifier.size(22.dp).clickable { onToggleLike() }
                     )
                     // 2. ADD TO COLLECTION
                     Icon(
                         imageVector = Icons.Default.PlaylistAdd,
-                        contentDescription = "Add to Collection",
+                        contentDescription = stringResource(R.string.cd_add_to_collection),
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), // FIXED
                         modifier = Modifier.size(22.dp).clickable { onAddToCollection() }
                     )
                     // 3. SHARE
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "Share",
+                        contentDescription = stringResource(R.string.cd_share),
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), // FIXED
                         modifier = Modifier.size(22.dp).clickable {
                             val sendIntent = android.content.Intent().apply {
@@ -375,7 +393,7 @@ fun DiscoveryQuoteCard(
                                 putExtra(android.content.Intent.EXTRA_TEXT, "${quote.text} - ${quote.author}")
                                 type = "text/plain"
                             }
-                            context.startActivity(android.content.Intent.createChooser(sendIntent, "Share Quote"))
+                            context.startActivity(android.content.Intent.createChooser(sendIntent, chooserTitle))
                         }
                     )
                 }

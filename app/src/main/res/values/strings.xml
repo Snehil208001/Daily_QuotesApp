@@ -1,3 +1,38 @@
 <resources>
     <string name="app_name">QuoteVault</string>
+
+    <string name="action_new_quote">New Quote</string>
+    <string name="action_saved">Saved</string>
+    <string name="action_save">Save</string>
+    <string name="action_share">Share</string>
+    <string name="dialog_share_quote_title">Share Quote</string>
+    <string name="cd_quote_card_preview">Quote Card Preview</string>
+    <string name="label_select_style">Select Style</string>
+    <string name="btn_text">Text</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_share">Share</string>
+
+    <string name="cd_search">Search</string>
+    <string name="hint_find_inspiration">Find inspiration...</string>
+    <string name="cd_filter">Filter</string>
+    <string name="msg_no_quotes_found">No quotes found</string>
+    <string name="title_new_collection">New Collection</string>
+    <string name="title_save_to_collection">Save to Collection</string>
+    <string name="msg_collection_name_prompt">Give your collection a name:</string>
+    <string name="label_name">Name</string>
+    <string name="msg_no_custom_collections">No custom collections yet.</string>
+    <string name="btn_create">Create</string>
+    <string name="btn_create_new">Create New</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_close">Close</string>
+    <string name="cd_like">Like</string>
+    <string name="cd_add_to_collection">Add to Collection</string>
+    <string name="cd_share">Share</string>
+    <string name="chooser_share_quote">Share Quote</string>
+
+    <string name="category_motivation">Motivation</string>
+    <string name="category_love">Love</string>
+    <string name="category_success">Success</string>
+    <string name="category_wisdom">Wisdom</string>
+    <string name="category_humor">Humor</string>
 </resources>
