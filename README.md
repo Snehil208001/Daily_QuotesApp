@@ -13,7 +13,7 @@ QuoteVault is a modern Android application designed to help users discover, coll
 
 *(Note: Please insert the actual Google Drive and APK links above before submitting)*
 
-## 🤖 AI-First Development Workflow (35 Marks Category)
+## 🤖 AI-First Development Workflow 
 
 QuoteVault was not just coded; it was collaboratively designed and engineered with AI. This project demonstrates a multi-AI agent workflow to maximize quality and speed.
 
