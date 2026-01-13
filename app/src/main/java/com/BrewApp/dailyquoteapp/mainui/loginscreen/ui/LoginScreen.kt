@@ -120,7 +120,7 @@ fun LoginScreen(
                 .background(PrimaryBlue.copy(alpha = 0.05f), CircleShape)
         )
 
-        // REMOVED: Center-Left Orange/Cream Blob (The "light yellow" accent)
+        // (Yellow blob removed as per previous request)
 
         // --- Main Content ---
         Column(
@@ -146,7 +146,19 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // NEW: App Name
+            Text(
+                text = "QuoteVault",
+                fontFamily = PlayfairFont,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryBlue,
+                letterSpacing = 1.sp
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Title
             Text(

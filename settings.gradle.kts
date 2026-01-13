@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Daily Quote App"
+rootProject.name = "QuoteVault"
 include(":app")
