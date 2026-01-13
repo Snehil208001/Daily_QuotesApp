@@ -82,6 +82,10 @@ fun ProfileScreen(
     val avatarUrl by viewModel.avatarUrl.collectAsState()
     val isUploading by viewModel.isUploading.collectAsState()
 
+    // Real Stats
+    val savedQuotesCount by viewModel.savedQuotesCount.collectAsState()
+    val collectionsCount by viewModel.collectionsCount.collectAsState()
+
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -277,12 +281,12 @@ fun ProfileScreen(
                 ) {
                     ProfileStatCard(
                         modifier = Modifier.weight(1f),
-                        count = "124",
+                        count = savedQuotesCount.toString(),
                         label = "Quotes Saved"
                     )
                     ProfileStatCard(
                         modifier = Modifier.weight(1f),
-                        count = "8",
+                        count = collectionsCount.toString(),
                         label = "Collections"
                     )
                 }
@@ -294,16 +298,8 @@ fun ProfileScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    ProfileMenuItem(
-                        icon = Icons.Default.Settings,
-                        label = "Account Settings",
-                        onClick = onSettingsClick
-                    )
-                    ProfileMenuItem(
-                        icon = Icons.Default.Notifications,
-                        label = "Notifications",
-                        onClick = onNotificationsClick
-                    )
+                    // Removed Account Settings & Notifications as requested
+
                     ProfileMenuItem(
                         icon = Icons.Default.Favorite,
                         label = "Quote Preferences",
