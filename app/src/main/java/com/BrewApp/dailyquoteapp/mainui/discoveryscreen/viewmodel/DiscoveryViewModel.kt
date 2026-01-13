@@ -1,23 +1,33 @@
 package com.BrewApp.dailyquoteapp.mainui.discoveryscreen.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.BrewApp.dailyquoteapp.data.db.AppDatabase
+import com.BrewApp.dailyquoteapp.data.model.Quote
 import com.BrewApp.dailyquoteapp.data.model.SupabaseQuote
 import com.BrewApp.dailyquoteapp.data.repository.DiscoveryRepository
+import com.BrewApp.dailyquoteapp.data.repository.QuoteRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class DiscoveryViewModel : ViewModel() {
+class DiscoveryViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = DiscoveryRepository()
+    private val discoveryRepository = DiscoveryRepository()
+    private val quoteRepository: QuoteRepository
 
-    // State
-    private val _quotes = MutableStateFlow<List<SupabaseQuote>>(emptyList())
-    val quotes: StateFlow<List<SupabaseQuote>> = _quotes.asStateFlow()
+    // Internal Raw states
+    private val _rawQuotes = MutableStateFlow<List<SupabaseQuote>>(emptyList())
+
+    // Public exposed state (combined with favorites)
+    val quotes: StateFlow<List<SupabaseQuote>>
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -31,6 +41,22 @@ class DiscoveryViewModel : ViewModel() {
     private var searchJob: Job? = null
 
     init {
+        // Initialize local database repository
+        val database = AppDatabase.getDatabase(application)
+        quoteRepository = QuoteRepository(database.favoriteDao())
+
+        // Combine the fetched quotes with the local favorites to determine 'isLiked' state
+        quotes = combine(_rawQuotes, quoteRepository.getAllFavorites()) { serverQuotes, favorites ->
+            serverQuotes.map { quote ->
+                // Check if this quote exists in the local favorites list by text
+                quote.copy(isLiked = favorites.any { it.text == quote.text })
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
         loadQuotes()
     }
 
@@ -52,15 +78,25 @@ class DiscoveryViewModel : ViewModel() {
         loadQuotes()
     }
 
+    // New Function: Handle Toggling Favorites
+    fun toggleQuoteLike(supabaseQuote: SupabaseQuote) {
+        viewModelScope.launch {
+            val quote = Quote(text = supabaseQuote.text, author = supabaseQuote.author)
+            // If it is currently liked, we want to unlike it (isFavorite=true deletes it)
+            // If it is not liked, we want to like it (isFavorite=false inserts it)
+            quoteRepository.toggleFavorite(quote, isFavorite = supabaseQuote.isLiked)
+        }
+    }
+
     private fun loadQuotes() {
         viewModelScope.launch {
             _isLoading.value = true
-            // Fetch data directly from Supabase based on the SQL table you created
-            val fetchedQuotes = repository.getQuotes(
+            // Fetch data directly from Supabase
+            val fetchedQuotes = discoveryRepository.getQuotes(
                 category = _selectedCategory.value,
                 searchQuery = _searchQuery.value
             )
-            _quotes.value = fetchedQuotes
+            _rawQuotes.value = fetchedQuotes
             _isLoading.value = false
         }
     }
