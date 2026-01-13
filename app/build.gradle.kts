@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization) // Added plugin
 }
 
 android {
@@ -82,13 +83,18 @@ dependencies {
     implementation(libs.ktor.client.android)
     // Supabase Storage
     implementation("io.github.jan-tennert.supabase:storage-kt:2.0.0")
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
 
     //coil
     implementation("io.coil-kt:coil-compose:2.5.0")
 
-    //icons
-    implementation("androidx.compose.material3:material3:1.2.0")
+    //icons & Material 3 (UPDATED to 1.3.1 for PullToRefresh)
+    implementation("androidx.compose.material3:material3:1.3.1")
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
+
+    // Foundation (Added for nestedScroll)
+    implementation("androidx.compose.foundation:foundation:1.7.6")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
