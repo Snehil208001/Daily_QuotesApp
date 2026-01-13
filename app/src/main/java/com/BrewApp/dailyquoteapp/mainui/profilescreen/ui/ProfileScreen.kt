@@ -38,6 +38,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,23 +64,12 @@ import com.BrewApp.dailyquoteapp.mainui.profilescreen.viewmodel.ProfileState
 import com.BrewApp.dailyquoteapp.mainui.profilescreen.viewmodel.ProfileViewModel
 import com.BrewApp.dailyquoteapp.ui.theme.InterFont
 import com.BrewApp.dailyquoteapp.ui.theme.PlayfairFont
-import com.BrewApp.dailyquoteapp.ui.theme.PrimaryBlue
 import kotlinx.coroutines.launch
-
-// Color definitions specific to the Profile design
-private val CreamBg = Color(0xFFFDFCF5)
-private val CreamSurface = Color(0xFFF7F5EB)
-private val TextPrimary = Color(0xFF1F2937)
-private val TextSecondary = Color(0xFF6B7280)
-private val BorderColor = Color(0xFFE7E5E4)
-private val RedText = Color(0xFFEF4444)
-private val RedBgHover = Color(0xFFFEF2F2)
-private val RedBorderHover = Color(0xFFFEE2E2)
 
 @Composable
 fun ProfileScreen(
     onBackClick: () -> Unit,
-    onEditProfileClick: () -> Unit, // This can still be used for text edits if needed
+    onEditProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onPreferencesClick: () -> Unit,
@@ -89,14 +79,13 @@ fun ProfileScreen(
     val profileState by viewModel.profileState.collectAsState()
     val userEmail by viewModel.userEmail.collectAsState()
     val fullName by viewModel.fullName.collectAsState()
-    val avatarUrl by viewModel.avatarUrl.collectAsState() // NEW: Observe Avatar
-    val isUploading by viewModel.isUploading.collectAsState() // NEW: Observe Upload Status
+    val avatarUrl by viewModel.avatarUrl.collectAsState()
+    val isUploading by viewModel.isUploading.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // NEW: Image Picker Launcher
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri: Uri? ->
@@ -117,12 +106,10 @@ fun ProfileScreen(
         }
     )
 
-    // Load user data when screen appears
     LaunchedEffect(Unit) {
         viewModel.loadUserData()
     }
 
-    // Handle profile state changes
     LaunchedEffect(profileState) {
         when (profileState) {
             is ProfileState.LogoutSuccess -> {
@@ -142,14 +129,13 @@ fun ProfileScreen(
     }
 
     Scaffold(
-        containerColor = CreamBg,
+        containerColor = MaterialTheme.colorScheme.background, // FIXED
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            // Sticky Top Bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(CreamBg)
+                    .background(MaterialTheme.colorScheme.background) // FIXED
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -162,7 +148,7 @@ fun ProfileScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back",
-                        tint = TextPrimary
+                        tint = MaterialTheme.colorScheme.onSurface // FIXED
                     )
                 }
 
@@ -171,7 +157,7 @@ fun ProfileScreen(
                     fontFamily = PlayfairFont,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface, // FIXED
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 40.dp),
@@ -188,7 +174,6 @@ fun ProfileScreen(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Max width constraint for larger screens
             Column(
                 modifier = Modifier
                     .width(448.dp)
@@ -206,12 +191,11 @@ fun ProfileScreen(
                             .size(128.dp)
                             .shadow(elevation = 10.dp, shape = CircleShape)
                             .background(Color.Gray, CircleShape)
-                            .border(4.dp, Color.White, CircleShape)
+                            .border(4.dp, MaterialTheme.colorScheme.surface, CircleShape) // FIXED
                             .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         if (avatarUrl != null) {
-                            // NEW: Load image from URL
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
                                     .data(avatarUrl)
@@ -222,7 +206,6 @@ fun ProfileScreen(
                                 modifier = Modifier.fillMaxSize()
                             )
                         } else {
-                            // Default placeholder
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = "Profile Picture",
@@ -231,24 +214,22 @@ fun ProfileScreen(
                             )
                         }
 
-                        // NEW: Show loader while uploading
                         if (isUploading) {
                             CircularProgressIndicator(
-                                color = PrimaryBlue,
+                                color = MaterialTheme.colorScheme.primary, // FIXED
                                 modifier = Modifier.size(64.dp)
                             )
                         }
                     }
 
-                    // Edit Badge (Triggers Photo Picker)
+                    // Edit Badge
                     Box(
                         modifier = Modifier
                             .padding(bottom = 4.dp, end = 4.dp)
                             .size(36.dp)
-                            .background(PrimaryBlue, CircleShape)
-                            .border(2.dp, Color.White, CircleShape)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape) // FIXED
+                            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape) // FIXED
                             .clickable {
-                                // Launch Photo Picker
                                 singlePhotoPickerLauncher.launch(
                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 )
@@ -258,7 +239,7 @@ fun ProfileScreen(
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit Profile Picture",
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary, // FIXED
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -276,14 +257,14 @@ fun ProfileScreen(
                         fontFamily = PlayfairFont,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface, // FIXED
                         letterSpacing = (-0.5).sp
                     )
                     Text(
                         text = userEmail ?: "Loading...",
                         fontFamily = InterFont,
                         fontSize = 16.sp,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) // FIXED
                     )
                 }
 
@@ -340,8 +321,8 @@ fun ProfileScreen(
                         }
                     },
                     shape = RoundedCornerShape(50),
-                    color = Color.White,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderColor),
+                    color = MaterialTheme.colorScheme.surface, // FIXED
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), // FIXED
                     shadowElevation = 1.dp,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -354,14 +335,14 @@ fun ProfileScreen(
                     ) {
                         if (profileState == ProfileState.Loading) {
                             CircularProgressIndicator(
-                                color = RedText,
+                                color = Color(0xFFEF4444),
                                 modifier = Modifier.size(20.dp)
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Outlined.Logout,
                                 contentDescription = null,
-                                tint = RedText,
+                                tint = Color(0xFFEF4444),
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -370,7 +351,7 @@ fun ProfileScreen(
                                 fontFamily = InterFont,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = RedText,
+                                color = Color(0xFFEF4444),
                                 letterSpacing = 0.5.sp
                             )
                         }
@@ -384,7 +365,7 @@ fun ProfileScreen(
                     text = "Version 2.4.0",
                     fontFamily = InterFont,
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) // FIXED
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -401,8 +382,8 @@ private fun ProfileStatCard(
 ) {
     Column(
         modifier = modifier
-            .background(CreamSurface, RoundedCornerShape(16.dp))
-            .border(1.dp, BorderColor.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp)) // FIXED
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(16.dp)) // FIXED
             .padding(vertical = 20.dp, horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -412,7 +393,7 @@ private fun ProfileStatCard(
             fontFamily = PlayfairFont,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
-            color = PrimaryBlue
+            color = MaterialTheme.colorScheme.primary // FIXED
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
@@ -420,7 +401,7 @@ private fun ProfileStatCard(
             fontFamily = InterFont,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), // FIXED
             letterSpacing = 1.5.sp
         )
     }
@@ -434,9 +415,9 @@ private fun ProfileMenuItem(
 ) {
     Surface(
         onClick = onClick,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface, // FIXED
         shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF3F4F6)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)), // FIXED
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -447,13 +428,13 @@ private fun ProfileMenuItem(
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .background(Color(0xFFEFF6FF), RoundedCornerShape(8.dp)),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(8.dp)), // FIXED
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = PrimaryBlue,
+                    tint = MaterialTheme.colorScheme.primary, // FIXED
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -466,7 +447,7 @@ private fun ProfileMenuItem(
                 fontFamily = InterFont,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onSurface, // FIXED
                 modifier = Modifier.weight(1f)
             )
 
@@ -474,7 +455,7 @@ private fun ProfileMenuItem(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = Color(0xFF9CA3AF)
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) // FIXED
             )
         }
     }

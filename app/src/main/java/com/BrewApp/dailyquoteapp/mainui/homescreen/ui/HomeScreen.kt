@@ -1,6 +1,5 @@
 package com.BrewApp.dailyquoteapp.mainui.homescreen.ui
 
-import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.BrewApp.dailyquoteapp.mainui.homescreen.viewmodel.HomeViewModel
-import com.BrewApp.dailyquoteapp.ui.theme.*
 import com.BrewApp.dailyquoteapp.util.QuoteStyle
 import com.BrewApp.dailyquoteapp.util.ShareUtils
 import java.time.LocalDate
@@ -57,7 +55,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundCream)
+            .background(MaterialTheme.colorScheme.background) // FIXED
     ) {
 
         // 1. Top Bar / Date Header
@@ -73,14 +71,14 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     text = dayOfWeek.uppercase(),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), // FIXED
                     letterSpacing = 2.sp
                 )
                 Text(
                     text = monthDay,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onSurface // FIXED
                 )
             }
         }
@@ -94,13 +92,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             contentAlignment = Alignment.Center
         ) {
             if (isLoading) {
-                CircularProgressIndicator(color = PrimaryBlue)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             } else {
                 Text(
                     text = "“",
                     fontSize = 120.sp,
                     fontFamily = FontFamily.Serif,
-                    color = PrimaryBlue.copy(alpha = 0.1f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), // FIXED
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .offset(x = (-10).dp, y = (-40).dp)
@@ -117,7 +115,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                         fontWeight = FontWeight.Medium,
                         lineHeight = 40.sp,
                         textAlign = TextAlign.Center,
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onSurface // FIXED
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -127,7 +125,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                             .width(48.dp)
                             .height(4.dp)
                             .clip(RoundedCornerShape(50))
-                            .background(PrimaryBlue.copy(alpha = 0.3f))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)) // FIXED
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -136,7 +134,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                         text = "— ${currentQuote.author}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), // FIXED
                         letterSpacing = 1.sp
                     )
                 }
@@ -205,14 +203,14 @@ fun ShareQuoteDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // FIXED
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Share Quote", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                Text("Share Quote", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface) // FIXED
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Preview Image
@@ -228,7 +226,7 @@ fun ShareQuoteDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Style Selector
-                Text("Select Style", fontSize = 14.sp, color = TextSecondary)
+                Text("Select Style", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)) // FIXED
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     QuoteStyle.values().forEach { style ->
@@ -245,7 +243,7 @@ fun ShareQuoteDialog(
                                 )
                                 .border(
                                     width = if (selectedStyle == style) 3.dp else 1.dp,
-                                    color = if (selectedStyle == style) PrimaryBlue else Color.Gray,
+                                    color = if (selectedStyle == style) MaterialTheme.colorScheme.primary else Color.Gray, // FIXED
                                     shape = CircleShape
                                 )
                                 .clickable { selectedStyle = style }
@@ -257,13 +255,13 @@ fun ShareQuoteDialog(
 
                 // Action Buttons
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    Button(onClick = onShareText, colors = ButtonDefaults.buttonColors(containerColor = SurfaceLight, contentColor = TextPrimary)) {
+                    Button(onClick = onShareText, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)) { // FIXED
                         Text("Text")
                     }
-                    Button(onClick = { onSaveImage(previewBitmap) }, colors = ButtonDefaults.buttonColors(containerColor = SurfaceLight, contentColor = TextPrimary)) {
+                    Button(onClick = { onSaveImage(previewBitmap) }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)) { // FIXED
                         Text("Save")
                     }
-                    Button(onClick = { onShareImage(previewBitmap) }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)) {
+                    Button(onClick = { onShareImage(previewBitmap) }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)) { // FIXED
                         Text("Share")
                     }
                 }
@@ -290,18 +288,18 @@ fun VerticalActionButton(
                 .shadow(
                     elevation = if (isPrimary) 10.dp else 2.dp,
                     shape = CircleShape,
-                    spotColor = if (isPrimary) PrimaryBlue.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.1f)
+                    spotColor = if (isPrimary) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.1f)
                 )
                 .clip(CircleShape)
-                .background(if (isPrimary) PrimaryBlue else SurfaceLight)
+                .background(if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface) // FIXED
                 .then(
-                    if (!isPrimary) Modifier.border(1.dp, BorderLight, CircleShape) else Modifier
+                    if (!isPrimary) Modifier.border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), CircleShape) else Modifier // FIXED
                 )
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (isPrimary) Color.White else TextSecondary,
+                tint = if (isPrimary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), // FIXED
                 modifier = Modifier.size(if (isPrimary) 28.dp else 24.dp)
             )
         }
@@ -312,7 +310,7 @@ fun VerticalActionButton(
             text = label,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = if (isPrimary) TextPrimary else TextMuted
+            color = if (isPrimary) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) // FIXED
         )
     }
 }

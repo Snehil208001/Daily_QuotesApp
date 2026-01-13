@@ -23,10 +23,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.BrewApp.dailyquoteapp.navigation.Screens
-import com.BrewApp.dailyquoteapp.ui.theme.BorderLight
-import com.BrewApp.dailyquoteapp.ui.theme.PrimaryBlue
-import com.BrewApp.dailyquoteapp.ui.theme.SurfaceLight
-import com.BrewApp.dailyquoteapp.ui.theme.TextMuted
 
 @Composable
 fun AppBottomNavBar(navController: NavController) {
@@ -42,9 +38,9 @@ fun AppBottomNavBar(navController: NavController) {
     )
 
     NavigationBar(
-        containerColor = SurfaceLight.copy(alpha = 0.9f),
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f), // FIXED
         tonalElevation = 0.dp,
-        modifier = Modifier.border(width = 1.dp, color = BorderLight)
+        modifier = Modifier.border(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)) // FIXED
     ) {
         items.forEach { item ->
             NavigationBarItem(
@@ -78,10 +74,10 @@ fun AppBottomNavBar(navController: NavController) {
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PrimaryBlue,
-                    selectedTextColor = PrimaryBlue,
-                    unselectedIconColor = TextMuted,
-                    unselectedTextColor = TextMuted,
+                    selectedIconColor = MaterialTheme.colorScheme.primary, // FIXED
+                    selectedTextColor = MaterialTheme.colorScheme.primary, // FIXED
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), // FIXED
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), // FIXED
                     indicatorColor = Color.Transparent
                 )
             )

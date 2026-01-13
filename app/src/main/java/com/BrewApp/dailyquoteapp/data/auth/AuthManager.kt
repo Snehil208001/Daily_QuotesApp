@@ -8,7 +8,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import java.util.UUID
 
 class AuthManager {
     // Access the client via the Singleton
@@ -66,6 +65,8 @@ class AuthManager {
         val fileName = "$userId/avatar_${System.currentTimeMillis()}.png"
 
         val bucket = supabase.storage.from("avatars") // Ensure bucket "avatars" exists in Supabase
+
+        // FIXED: Using named argument 'upsert = true' which matches the library signature (String, ByteArray, Boolean)
         bucket.upload(fileName, imageBytes, upsert = true)
 
         return bucket.publicUrl(fileName)
@@ -80,6 +81,38 @@ class AuthManager {
         // Using modifyUser (Correct function for Supabase-kt v2+)
         supabase.auth.modifyUser {
             data = updatedMetadata
+        }
+    }
+
+    // Sync local preferences to Supabase User Metadata
+    suspend fun syncUserPreferences(theme: String, accent: String, fontScale: Float) {
+        try {
+            val user = supabase.auth.currentUserOrNull() ?: return
+            val metadata = buildJsonObject {
+                put("pref_theme", theme)
+                put("pref_accent", accent)
+                put("pref_font_scale", fontScale)
+            }
+            supabase.auth.modifyUser {
+                data = metadata
+            }
+            Log.d("AuthManager", "Preferences synced to cloud")
+        } catch (e: Exception) {
+            Log.e("AuthManager", "Failed to sync preferences", e)
+        }
+    }
+
+    // Fetch preferences from Supabase User Metadata
+    suspend fun fetchUserPreferences(): Triple<String?, String?, Float?> {
+        return try {
+            val user = supabase.auth.currentUserOrNull() ?: return Triple(null, null, null)
+            val theme = user.userMetadata?.get("pref_theme")?.jsonPrimitive?.contentOrNull
+            val accent = user.userMetadata?.get("pref_accent")?.jsonPrimitive?.contentOrNull
+            val fontScale = user.userMetadata?.get("pref_font_scale")?.jsonPrimitive?.contentOrNull?.toFloatOrNull()
+            Triple(theme, accent, fontScale)
+        } catch (e: Exception) {
+            Log.e("AuthManager", "Failed to fetch preferences", e)
+            Triple(null, null, null)
         }
     }
 
@@ -129,7 +162,6 @@ class AuthManager {
     // Reset password
     suspend fun resetPassword(email: String): AuthResult {
         return try {
-            // FIXED: Added redirectUrl to ensure deep link works and email is sent correctly
             supabase.auth.resetPasswordForEmail(
                 email = email,
                 redirectUrl = "io.supabase.dailyquoteapp://login-callback"
@@ -137,7 +169,6 @@ class AuthManager {
             AuthResult.Success
         } catch (e: Exception) {
             Log.e("AuthManager", "Password reset failed", e)
-            // FIXED: Sanitize the raw exception message
             AuthResult.Error(sanitizeErrorMessage(e.message))
         }
     }
@@ -173,6 +204,7 @@ class AuthManager {
     }
 }
 
+// Sealed class must be outside AuthManager but in the same file to be accessible
 sealed class AuthResult {
     object Success : AuthResult()
     data class Error(val message: String) : AuthResult()

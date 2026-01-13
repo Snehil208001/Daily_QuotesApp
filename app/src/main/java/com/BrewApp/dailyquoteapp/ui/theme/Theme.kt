@@ -5,52 +5,72 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
-
-// Define the Color Schemes using your new colors from Color.kt
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryBlue,
-    secondary = PrimaryBlue,
-    tertiary = TextMuted,
-    background = BackgroundDark,
-    surface = SurfaceDark,         // Fixed: mapped to SurfaceDark
-    onPrimary = SurfaceLight,      // Fixed: mapped to SurfaceLight (White text on Blue)
-    onSurface = SurfaceLight       // Fixed: mapped to SurfaceLight (White text on Dark bg)
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = PrimaryBlue,
-    secondary = PrimaryBlue,
-    tertiary = TextMuted,
-    background = BackgroundCream,  // Fixed: mapped to BackgroundCream
-    surface = SurfaceLight,        // Fixed: mapped to SurfaceLight
-    onPrimary = SurfaceLight,      // Fixed: mapped to SurfaceLight (White text on Blue)
-    onSurface = TextPrimary        // Fixed: mapped to TextPrimary (Dark text on Light bg)
-)
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 
 @Composable
 fun DailyQuoteAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false, // Changed to false to force our custom colors
+    themeMode: String = "system", // system, light, dark
+    accentColorName: String = "blue", // blue, green, purple, orange
+    fontScale: Float = 1.0f,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    // 1. Determine Dark Mode
+    val darkTheme = when (themeMode) {
+        "light" -> false
+        "dark" -> true
+        else -> isSystemInDarkTheme()
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+    // 2. Select Accent Color
+    val primaryColor = when (accentColorName) {
+        "green" -> PrimaryGreen
+        "purple" -> PrimaryPurple
+        "orange" -> PrimaryOrange
+        else -> PrimaryBlue
+    }
+
+    // 3. Build Color Scheme
+    val colorScheme = if (darkTheme) {
+        darkColorScheme(
+            primary = primaryColor,
+            secondary = primaryColor,
+            tertiary = TextMuted,
+            background = BackgroundDark,
+            surface = SurfaceDark,
+            onPrimary = SurfaceLight,
+            onSurface = SurfaceLight
+        )
+    } else {
+        lightColorScheme(
+            primary = primaryColor,
+            secondary = primaryColor,
+            tertiary = TextMuted,
+            background = BackgroundCream,
+            surface = SurfaceLight,
+            onPrimary = SurfaceLight,
+            onSurface = TextPrimary
+        )
+    }
+
+    // 4. Apply Font Scaling via LocalDensity
+    val currentDensity = LocalDensity.current
+    val customDensity = Density(
+        density = currentDensity.density,
+        fontScale = currentDensity.fontScale * fontScale
     )
+
+    CompositionLocalProvider(
+        LocalDensity provides customDensity
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography, // Assuming Typography is defined in Type.kt
+            content = content
+        )
+    }
 }

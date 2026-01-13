@@ -31,31 +31,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.rounded.FormatQuote
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,12 +50,6 @@ import com.BrewApp.dailyquoteapp.data.db.FavoriteQuote
 import com.BrewApp.dailyquoteapp.data.model.QuoteCollection
 import com.BrewApp.dailyquoteapp.mainui.favouritescreen.viewmodel.CollectionsViewModel
 import com.BrewApp.dailyquoteapp.mainui.favouritescreen.viewmodel.FavouriteViewModel
-import com.BrewApp.dailyquoteapp.ui.theme.BackgroundCream
-import com.BrewApp.dailyquoteapp.ui.theme.PrimaryBlue
-import com.BrewApp.dailyquoteapp.ui.theme.SurfaceLight
-import com.BrewApp.dailyquoteapp.ui.theme.TextMuted
-import com.BrewApp.dailyquoteapp.ui.theme.TextPrimary
-import com.BrewApp.dailyquoteapp.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +81,7 @@ fun FavouriteScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundCream)
+            .background(MaterialTheme.colorScheme.background) // FIXED
             .statusBarsPadding()
     ) {
         // --- Header ---
@@ -124,11 +98,11 @@ fun FavouriteScreen(
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.Transparent,
-                contentColor = PrimaryBlue,
+                contentColor = MaterialTheme.colorScheme.primary, // FIXED
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                        color = PrimaryBlue
+                        color = MaterialTheme.colorScheme.primary // FIXED
                     )
                 }
             ) {
@@ -236,8 +210,8 @@ fun CollectionsListView(
         // FAB to create collection
         FloatingActionButton(
             onClick = onCreateClick,
-            containerColor = PrimaryBlue,
-            contentColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.primary, // FIXED
+            contentColor = MaterialTheme.colorScheme.onPrimary, // FIXED
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(24.dp)
@@ -292,12 +266,12 @@ fun FavoritesHeader(onBackClick: () -> Unit, title: String) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(SurfaceLight)
+                .background(MaterialTheme.colorScheme.surface) // FIXED
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Go back",
-                tint = TextPrimary,
+                tint = MaterialTheme.colorScheme.onSurface, // FIXED
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -306,7 +280,7 @@ fun FavoritesHeader(onBackClick: () -> Unit, title: String) {
             text = title,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = TextPrimary
+            color = MaterialTheme.colorScheme.onSurface // FIXED
         )
     }
 }
@@ -315,7 +289,7 @@ fun FavoritesHeader(onBackClick: () -> Unit, title: String) {
 fun FavoriteQuoteCard(text: String, author: String, onDelete: () -> Unit) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceLight),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // FIXED
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -324,12 +298,12 @@ fun FavoriteQuoteCard(text: String, author: String, onDelete: () -> Unit) {
                 onClick = onDelete,
                 modifier = Modifier.align(Alignment.TopEnd).offset(x = 12.dp, y = (-12).dp)
             ) {
-                Icon(Icons.Outlined.Delete, "Delete", tint = TextMuted.copy(alpha = 0.7f), modifier = Modifier.size(20.dp))
+                Icon(Icons.Outlined.Delete, "Delete", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), modifier = Modifier.size(20.dp)) // FIXED
             }
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Icon(Icons.Rounded.FormatQuote, null, tint = PrimaryBlue.copy(alpha = 0.2f), modifier = Modifier.size(32.dp))
-                Text(text = "\"$text\"", fontFamily = FontFamily.Serif, fontSize = 18.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
-                Text(text = author, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                Icon(Icons.Rounded.FormatQuote, null, tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), modifier = Modifier.size(32.dp)) // FIXED
+                Text(text = "\"$text\"", fontFamily = FontFamily.Serif, fontSize = 18.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface) // FIXED
+                Text(text = author, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) // FIXED
             }
         }
     }
@@ -339,7 +313,7 @@ fun FavoriteQuoteCard(text: String, author: String, onDelete: () -> Unit) {
 fun CollectionCard(collection: QuoteCollection, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceLight),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // FIXED
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
@@ -350,9 +324,9 @@ fun CollectionCard(collection: QuoteCollection, onClick: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(Icons.Default.FolderOpen, null, tint = PrimaryBlue, modifier = Modifier.size(48.dp))
+            Icon(Icons.Default.FolderOpen, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(48.dp)) // FIXED
             Spacer(modifier = Modifier.height(12.dp))
-            Text(text = collection.name, fontWeight = FontWeight.SemiBold, color = TextPrimary, textAlign = TextAlign.Center)
+            Text(text = collection.name, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center) // FIXED
         }
     }
 }
@@ -376,9 +350,9 @@ fun EmptyStateView(message: String, subMessage: String) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(Icons.Rounded.FormatQuote, null, tint = TextMuted.copy(alpha = 0.3f), modifier = Modifier.size(80.dp))
+        Icon(Icons.Rounded.FormatQuote, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f), modifier = Modifier.size(80.dp)) // FIXED
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = message, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
-        Text(text = subMessage, fontSize = 14.sp, color = TextMuted, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
+        Text(text = message, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) // FIXED
+        Text(text = subMessage, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp)) // FIXED
     }
 }

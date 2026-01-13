@@ -1,6 +1,5 @@
 package com.BrewApp.dailyquoteapp.data.local
 
-
 import android.content.Context
 import android.content.SharedPreferences
 import com.BrewApp.dailyquoteapp.data.model.Quote
@@ -17,9 +16,14 @@ class PreferencesManager(context: Context) {
         private const val KEY_NOTIF_ENABLED = "notif_enabled"
         private const val KEY_NOTIF_HOUR = "notif_hour"
         private const val KEY_NOTIF_MINUTE = "notif_minute"
+
+        // New Personalization Keys
+        const val KEY_THEME_MODE = "app_theme_mode" // "system", "light", "dark"
+        const val KEY_ACCENT_COLOR = "app_accent_color" // "blue", "green", "purple", "orange"
+        const val KEY_FONT_SCALE = "app_font_scale" // Float (e.g., 0.8f to 1.4f)
     }
 
-    // --- Daily Quote Logic ---
+    // --- Daily Quote Logic (Existing) ---
     fun saveDailyQuote(quote: Quote) {
         val today = LocalDate.now().toString()
         prefs.edit()
@@ -38,9 +42,7 @@ class PreferencesManager(context: Context) {
         return null
     }
 
-    fun getLastQuoteDate(): String? {
-        return prefs.getString(KEY_QUOTE_DATE, null)
-    }
+    fun getLastQuoteDate(): String? = prefs.getString(KEY_QUOTE_DATE, null)
 
     fun isQuoteFromToday(): Boolean {
         val lastDate = getLastQuoteDate()
@@ -48,25 +50,37 @@ class PreferencesManager(context: Context) {
         return lastDate == today
     }
 
-    // --- Notification Settings ---
-    fun setNotificationsEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_NOTIF_ENABLED, enabled).apply()
-    }
-
-    fun areNotificationsEnabled(): Boolean {
-        return prefs.getBoolean(KEY_NOTIF_ENABLED, false)
-    }
+    // --- Notification Settings (Existing) ---
+    fun setNotificationsEnabled(enabled: Boolean) = prefs.edit().putBoolean(KEY_NOTIF_ENABLED, enabled).apply()
+    fun areNotificationsEnabled(): Boolean = prefs.getBoolean(KEY_NOTIF_ENABLED, false)
 
     fun setNotificationTime(hour: Int, minute: Int) {
-        prefs.edit()
-            .putInt(KEY_NOTIF_HOUR, hour)
-            .putInt(KEY_NOTIF_MINUTE, minute)
-            .apply()
+        prefs.edit().putInt(KEY_NOTIF_HOUR, hour).putInt(KEY_NOTIF_MINUTE, minute).apply()
     }
 
     fun getNotificationTime(): Pair<Int, Int> {
-        val hour = prefs.getInt(KEY_NOTIF_HOUR, 8) // Default 8:00 AM
+        val hour = prefs.getInt(KEY_NOTIF_HOUR, 8)
         val minute = prefs.getInt(KEY_NOTIF_MINUTE, 0)
         return Pair(hour, minute)
+    }
+
+    // --- New Personalization Settings ---
+
+    fun setThemeMode(mode: String) = prefs.edit().putString(KEY_THEME_MODE, mode).apply()
+    fun getThemeMode(): String = prefs.getString(KEY_THEME_MODE, "system") ?: "system"
+
+    fun setAccentColor(color: String) = prefs.edit().putString(KEY_ACCENT_COLOR, color).apply()
+    fun getAccentColor(): String = prefs.getString(KEY_ACCENT_COLOR, "blue") ?: "blue"
+
+    fun setFontScale(scale: Float) = prefs.edit().putFloat(KEY_FONT_SCALE, scale).apply()
+    fun getFontScale(): Float = prefs.getFloat(KEY_FONT_SCALE, 1.0f)
+
+    // Helper to register listener for reactive updates
+    fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+    }
+
+    fun unregisterListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
+        prefs.unregisterOnSharedPreferenceChangeListener(listener)
     }
 }
