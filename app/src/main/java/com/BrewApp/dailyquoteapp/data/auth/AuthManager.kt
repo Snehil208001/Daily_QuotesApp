@@ -3,13 +3,16 @@ package com.BrewApp.dailyquoteapp.data.auth
 import android.util.Log
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
+import io.github.jan.supabase.storage.storage
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.contentOrNull
+import java.util.UUID
 
 class AuthManager {
-    private val supabase = SupabaseClient.client
+    // Access the client via the Singleton
+    val supabase = SupabaseClient.client
 
     // Check if user is logged in
     suspend fun isUserLoggedIn(): Boolean {
@@ -43,6 +46,43 @@ class AuthManager {
         }
     }
 
+    // Get current user avatar URL
+    suspend fun getCurrentUserAvatar(): String? {
+        return try {
+            val user = supabase.auth.currentUserOrNull()
+            // Retrieve 'avatar_url' from user metadata
+            user?.userMetadata?.get("avatar_url")?.jsonPrimitive?.contentOrNull
+        } catch (e: Exception) {
+            Log.e("AuthManager", "Error getting user avatar", e)
+            null
+        }
+    }
+
+    // Upload profile picture to Supabase Storage and return Public URL
+    suspend fun uploadProfilePicture(imageBytes: ByteArray): String {
+        val user = supabase.auth.currentUserOrNull() ?: throw Exception("User not logged in")
+        val userId = user.id
+        // Create a unique filename for the user
+        val fileName = "$userId/avatar_${System.currentTimeMillis()}.png"
+
+        val bucket = supabase.storage.from("avatars") // Ensure bucket "avatars" exists in Supabase
+        bucket.upload(fileName, imageBytes, upsert = true)
+
+        return bucket.publicUrl(fileName)
+    }
+
+    // Update user metadata with new Avatar URL
+    suspend fun updateUserAvatarUrl(url: String) {
+        val user = supabase.auth.currentUserOrNull() ?: throw Exception("User not logged in")
+        val updatedMetadata = buildJsonObject {
+            put("avatar_url", url)
+        }
+        // Using modifyUser (Correct function for Supabase-kt v2+)
+        supabase.auth.modifyUser {
+            data = updatedMetadata
+        }
+    }
+
     // Sign up with email, password, and full name
     suspend fun signUp(email: String, password: String, fullName: String): AuthResult {
         return try {
@@ -57,7 +97,7 @@ class AuthManager {
             AuthResult.Success
         } catch (e: Exception) {
             Log.e("AuthManager", "Sign up failed", e)
-            AuthResult.Error(e.message ?: "Sign up failed")
+            AuthResult.Error(sanitizeErrorMessage(e.message))
         }
     }
 
@@ -71,15 +111,7 @@ class AuthManager {
             AuthResult.Success
         } catch (e: Exception) {
             Log.e("AuthManager", "Sign in failed", e)
-            // Check for specific Supabase error messages
-            val errorMessage = e.message ?: ""
-            if (errorMessage.contains("Email not confirmed", ignoreCase = true)) {
-                AuthResult.Error("Please verify your email address to login.")
-            } else if (errorMessage.contains("Invalid login credentials", ignoreCase = true)) {
-                AuthResult.Error("Invalid email or password.")
-            } else {
-                AuthResult.Error(errorMessage.ifBlank { "Sign in failed" })
-            }
+            AuthResult.Error(sanitizeErrorMessage(e.message))
         }
     }
 
@@ -90,19 +122,54 @@ class AuthManager {
             AuthResult.Success
         } catch (e: Exception) {
             Log.e("AuthManager", "Sign out failed", e)
-            AuthResult.Error(e.message ?: "Sign out failed")
+            AuthResult.Error(sanitizeErrorMessage(e.message))
         }
     }
 
     // Reset password
     suspend fun resetPassword(email: String): AuthResult {
         return try {
-            supabase.auth.resetPasswordForEmail(email)
+            // FIXED: Added redirectUrl to ensure deep link works and email is sent correctly
+            supabase.auth.resetPasswordForEmail(
+                email = email,
+                redirectUrl = "io.supabase.dailyquoteapp://login-callback"
+            )
             AuthResult.Success
         } catch (e: Exception) {
             Log.e("AuthManager", "Password reset failed", e)
-            AuthResult.Error(e.message ?: "Password reset failed")
+            // FIXED: Sanitize the raw exception message
+            AuthResult.Error(sanitizeErrorMessage(e.message))
         }
+    }
+
+    // Helper to clean up the error messages
+    private fun sanitizeErrorMessage(rawMessage: String?): String {
+        val msg = rawMessage ?: "Unknown error occurred"
+
+        // If the message contains raw HTTP dumps (which usually contain "http" or JSON brackets),
+        // return a friendly generic error instead.
+        if (msg.contains("Request URL", ignoreCase = true) ||
+            msg.contains("http", ignoreCase = true) && msg.length > 100) {
+
+            // Try to guess the context based on common issues
+            return if (msg.contains("400") || msg.contains("422")) {
+                "Invalid request. Please check your email or password."
+            } else if (msg.contains("429")) {
+                "Too many requests. Please try again later."
+            } else {
+                "Network error. Please try again."
+            }
+        }
+
+        // Handle common auth errors specifically
+        if (msg.contains("Email not confirmed", ignoreCase = true)) {
+            return "Please verify your email address to login."
+        }
+        if (msg.contains("Invalid login credentials", ignoreCase = true)) {
+            return "Invalid email or password."
+        }
+
+        return msg
     }
 }
 

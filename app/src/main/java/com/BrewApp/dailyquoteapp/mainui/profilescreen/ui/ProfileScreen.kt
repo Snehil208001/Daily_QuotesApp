@@ -1,5 +1,9 @@
 package com.BrewApp.dailyquoteapp.mainui.profilescreen.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,21 +44,27 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.BrewApp.dailyquoteapp.mainui.profilescreen.viewmodel.ProfileState
 import com.BrewApp.dailyquoteapp.mainui.profilescreen.viewmodel.ProfileViewModel
 import com.BrewApp.dailyquoteapp.ui.theme.InterFont
 import com.BrewApp.dailyquoteapp.ui.theme.PlayfairFont
 import com.BrewApp.dailyquoteapp.ui.theme.PrimaryBlue
+import kotlinx.coroutines.launch
 
 // Color definitions specific to the Profile design
 private val CreamBg = Color(0xFFFDFCF5)
@@ -69,7 +79,7 @@ private val RedBorderHover = Color(0xFFFEE2E2)
 @Composable
 fun ProfileScreen(
     onBackClick: () -> Unit,
-    onEditProfileClick: () -> Unit,
+    onEditProfileClick: () -> Unit, // This can still be used for text edits if needed
     onSettingsClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onPreferencesClick: () -> Unit,
@@ -78,8 +88,34 @@ fun ProfileScreen(
 ) {
     val profileState by viewModel.profileState.collectAsState()
     val userEmail by viewModel.userEmail.collectAsState()
-    val fullName by viewModel.fullName.collectAsState() // Observe Name
+    val fullName by viewModel.fullName.collectAsState()
+    val avatarUrl by viewModel.avatarUrl.collectAsState() // NEW: Observe Avatar
+    val isUploading by viewModel.isUploading.collectAsState() // NEW: Observe Upload Status
+
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // NEW: Image Picker Launcher
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                scope.launch {
+                    try {
+                        val inputStream = context.contentResolver.openInputStream(it)
+                        val bytes = inputStream?.readBytes()
+                        inputStream?.close()
+                        if (bytes != null) {
+                            viewModel.uploadAvatar(bytes)
+                        }
+                    } catch (e: Exception) {
+                        snackbarHostState.showSnackbar("Failed to read image")
+                    }
+                }
+            }
+        }
+    )
 
     // Load user data when screen appears
     LaunchedEffect(Unit) {
@@ -95,6 +131,10 @@ fun ProfileScreen(
             }
             is ProfileState.Error -> {
                 snackbarHostState.showSnackbar((profileState as ProfileState.Error).message)
+                viewModel.resetState()
+            }
+            is ProfileState.Success -> {
+                snackbarHostState.showSnackbar((profileState as ProfileState.Success).message)
                 viewModel.resetState()
             }
             else -> {}
@@ -160,7 +200,7 @@ fun ProfileScreen(
 
                 // 1. Profile Header
                 Box(contentAlignment = Alignment.BottomEnd) {
-                    // Avatar Image Placeholder
+                    // Avatar Image
                     Box(
                         modifier = Modifier
                             .size(128.dp)
@@ -170,27 +210,54 @@ fun ProfileScreen(
                             .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Profile Picture",
-                            tint = Color.White,
-                            modifier = Modifier.size(80.dp)
-                        )
+                        if (avatarUrl != null) {
+                            // NEW: Load image from URL
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(avatarUrl)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = "Profile Picture",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            // Default placeholder
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Profile Picture",
+                                tint = Color.White,
+                                modifier = Modifier.size(80.dp)
+                            )
+                        }
+
+                        // NEW: Show loader while uploading
+                        if (isUploading) {
+                            CircularProgressIndicator(
+                                color = PrimaryBlue,
+                                modifier = Modifier.size(64.dp)
+                            )
+                        }
                     }
 
-                    // Edit Badge
+                    // Edit Badge (Triggers Photo Picker)
                     Box(
                         modifier = Modifier
                             .padding(bottom = 4.dp, end = 4.dp)
                             .size(36.dp)
                             .background(PrimaryBlue, CircleShape)
                             .border(2.dp, Color.White, CircleShape)
-                            .clickable { onEditProfileClick() },
+                            .clickable {
+                                // Launch Photo Picker
+                                singlePhotoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Profile",
+                            contentDescription = "Edit Profile Picture",
                             tint = Color.White,
                             modifier = Modifier.size(18.dp)
                         )
@@ -205,7 +272,7 @@ fun ProfileScreen(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = fullName ?: "User", // Dynamic Name
+                        text = fullName ?: "User",
                         fontFamily = PlayfairFont,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,

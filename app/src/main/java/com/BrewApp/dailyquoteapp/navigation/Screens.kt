@@ -7,4 +7,6 @@ sealed class Screens(val route: String) {
     object Discovery : Screens("discovery")
     object Favorites : Screens("favorites")
     object Profile : Screens("profile")
+    // NEW
+    object NewPassword : Screens("new_password")
 }

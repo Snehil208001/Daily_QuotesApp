@@ -14,6 +14,7 @@ import com.BrewApp.dailyquoteapp.mainui.discoveryscreen.ui.DiscoveryScreen
 import com.BrewApp.dailyquoteapp.mainui.favouritescreen.ui.FavouriteScreen
 import com.BrewApp.dailyquoteapp.mainui.homescreen.ui.HomeScreen
 import com.BrewApp.dailyquoteapp.mainui.loginscreen.ui.LoginScreen
+import com.BrewApp.dailyquoteapp.mainui.loginscreen.ui.NewPasswordScreen
 import com.BrewApp.dailyquoteapp.mainui.profilescreen.ui.ProfileScreen
 import com.BrewApp.dailyquoteapp.mainui.signupscreen.ui.SignUpScreen
 
@@ -48,7 +49,6 @@ fun AppNavGraph(startDestination: String = Screens.Login.route) {
             composable(Screens.Login.route) {
                 LoginScreen(
                     onLoginClick = {
-                        // Clear back stack so user can't press back to return to login
                         navController.navigate(Screens.Home.route) {
                             popUpTo(Screens.Login.route) { inclusive = true }
                         }
@@ -57,7 +57,7 @@ fun AppNavGraph(startDestination: String = Screens.Login.route) {
                         navController.navigate(Screens.SignUp.route)
                     },
                     onForgotPasswordClick = {
-                        // TODO: Navigate to Forgot Password screen
+                        // Handled inside LoginViewModel logic (emails sent)
                     }
                 )
             }
@@ -68,11 +68,21 @@ fun AppNavGraph(startDestination: String = Screens.Login.route) {
                         navController.popBackStack()
                     },
                     onLoginClick = {
-                        // Go back to existing Login screen rather than creating a new one
                         navController.popBackStack()
                     },
                     onSignUpSubmit = {
-                        // After signup, navigate to Home and clear auth screens
+                        navController.navigate(Screens.Home.route) {
+                            popUpTo(Screens.Login.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            // NEW: Password Reset Screen
+            composable(Screens.NewPassword.route) {
+                NewPasswordScreen(
+                    onPasswordUpdated = {
+                        // After updating password, go to Home
                         navController.navigate(Screens.Home.route) {
                             popUpTo(Screens.Login.route) { inclusive = true }
                         }
@@ -107,7 +117,6 @@ fun AppNavGraph(startDestination: String = Screens.Login.route) {
                     onNotificationsClick = { /* TODO */ },
                     onPreferencesClick = { /* TODO */ },
                     onLogoutClick = {
-                        // Log out and return to Login, clearing the stack
                         navController.navigate(Screens.Login.route) {
                             popUpTo(0) { inclusive = true }
                         }
